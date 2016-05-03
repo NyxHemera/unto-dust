@@ -6,10 +6,12 @@
 class LocationHandler {
 	constructor(game) {
 		this.game = game;
+		this.currentLocation = new Location(this);
 	}
 
 	update() {
-
+		//console.log("LocationHandler - updating")
+		this.currentLocation.update();
 	}
 }
 
@@ -50,7 +52,8 @@ class GameClock {
 
 	start() {
 		console.log("GameClock - Starting");
-		this.gameLoop = setInterval(this.game.update, this.tick);
+		var self = this;
+		this.gameLoop = setInterval(function() { self.game.update() }, this.tick);
 	}
 
 	pause() {
@@ -88,7 +91,7 @@ class GameClock {
 class Game {
 	constructor() {
 		//this.eh = new EventHandler(this);
-		//this.lh = new LocationHandler(this);
+		this.lh = new LocationHandler(this);
 		this.gc = new GameClock(this);
 		//this.player = new Player(this);
 	}
@@ -97,7 +100,7 @@ class Game {
 		console.log("Game - updating");
 		// Order not set in stone
 		//this.eh.update();
-		//this.lh.update();
+		this.lh.update();
 		//this.player.update();
 	}
 }
