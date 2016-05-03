@@ -13,7 +13,11 @@ class Character {
 			intelligence: 0,
 			strength: 0,
 			age: 0
-		}
+		};
+	}
+
+	update() {
+		
 	}
 
 	toString() { return this.attr.name; }
