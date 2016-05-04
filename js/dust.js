@@ -14,17 +14,9 @@ class Group {
 		this.NPCs = [];
 
 		// Current Inventory
-		this.inv = {
-			wood: 0,
-			metal: 0,
-			food: 0,
-			medicine: 0
-		};
+		this.inv = cloneObj(invTemplate);
 		// Current Stats
-		this.stats = {
-			security: 0,
-			morale: 0
-		};
+		this.stats = cloneObj(statsTemplate);
 	}
 
 	update() {
@@ -46,10 +38,7 @@ class Group {
 		}
 	}
 	updateStats(CL) {
-		var statMods = {
-			security: 0,
-			morale: 0
-		}
+		var statMods = cloneObj(statsTemplate);
 		//NPC modifiers
 		//Location modifiers
 		for(var key in CL.statMods) {
@@ -107,8 +96,19 @@ class LocationHandler {
 		this.currentLocation.update();
 	}
 	getStartingLocation() {
-		this.currentLocation = new Location(this);
+		this.currentLocation = this.getLocation(randRange(0,1));
 		return this.currentLocation;
+	}
+
+	getLocation(index) {
+		switch(index) {
+			case 0:
+				return new Prison(this);
+				break;
+			case 1:
+				return new GolfCourse(this);
+				break;
+		}
 	}
 }
 
