@@ -1,4 +1,97 @@
 /*
+	Manages the group itself, what the group possesses,
+	and what the group knows.
+*/
+class Group {
+	constructor(game, lh) {
+		this.game = game;
+		this.lh = lh;
+
+		this.currentLocation = lh.getStartingLocation();
+		this.knownLocations = [];
+
+		this.player;
+		this.NPCs = [];
+
+		// Current Inventory
+		this.inv = {
+			wood: 0,
+			metal: 0,
+			food: 0,
+			medicine: 0
+		};
+		// Current Stats
+		this.stats = {
+			security: 0,
+			morale: 0
+		};
+	}
+
+	update() {
+		this.updateInventory(this.currentLocation);
+		this.updateStats(this.currentLocation);
+	}
+
+	//Handle applying modifiers to inventory and stats each tick
+	updateInventory(CL) {
+		//NPC modifiers
+		//Location modifiers
+		for(var key in CL.invMods) {
+			if(this.inv.hasOwnProperty(key)) {
+				this.inv[key] += CL.invMods[key];
+			}else {
+				console.log("Group - No key in inventory - key: " + key);
+				console.log(this.inv);
+			}
+		}
+	}
+	updateStats(CL) {
+		var statMods = {
+			security: 0,
+			morale: 0
+		}
+		//NPC modifiers
+		//Location modifiers
+		for(var key in CL.statMods) {
+			statMods[key] += CL.statMods[key];
+		}
+		this.stats = statMods;
+	}
+
+	/*
+		Used when moving to a new location. Takes all of
+		Location's inv and gives it to the Group.
+	*/
+	transferInventory(CL) {
+		for(var key in CL.inv) {
+			this.inv[key] += CL.inv[key];
+			CL.inv[key] = 0;
+		}
+	}
+	/*
+		Used when leaving a location. Leaves a percentage of
+		each item at the previous location.
+	*/
+	abandonInventory(CL) {
+
+	}
+
+	// Mutators
+
+	// Add modifiers to inventory mod
+	addInvMod(key, mod) {
+		if(this.inv.hasOwnProperty(key)) {
+			this.invMods[key] += mod;
+			return true;
+		}else {
+			console.log(`Location - Invalid key given - key: ${key}, mod: ${mod}`);
+			console.log(this);
+			return false;
+		}
+	}
+}
+
+/*
 	Handles generating new Locations, the current location,
 	and known locations.
 */
@@ -6,12 +99,16 @@
 class LocationHandler {
 	constructor(game) {
 		this.game = game;
-		this.currentLocation = new Location(this);
+		this.currentLocation;
 	}
 
 	update() {
 		//console.log("LocationHandler - updating")
 		this.currentLocation.update();
+	}
+	getStartingLocation() {
+		this.currentLocation = new Location(this);
+		return this.currentLocation;
 	}
 }
 
@@ -92,8 +189,10 @@ class Game {
 	constructor() {
 		//this.eh = new EventHandler(this);
 		this.lh = new LocationHandler(this);
-		this.gc = new GameClock(this);
 		//this.player = new Player(this);
+		this.group = new Group(this, this.lh);
+
+		this.gc = new GameClock(this);
 	}
 
 	update() {
@@ -102,5 +201,6 @@ class Game {
 		//this.eh.update();
 		this.lh.update();
 		//this.player.update();
+		this.group.update();
 	}
 }
